@@ -22,22 +22,24 @@ We start with loading the packages we'll use.
 
 ```{r load-packages, message=FALSE}
 library(fivethirtyeight)
-library(Tidyverse)
+library(tidyverse)
 ```
 
-The dataset contains information on `r nrow(bechdel)` movies released between `r min(bechdel$year)` and `r max(bechdel$year)`.
+
+The dataset contains information on `r nrow(bechdel)` movies released between `r min(bechdel$year)` and `r max(bechdel$year)`.  
 However we'll focus our analysis on movies released between 1990 and 2013.
 
 ```{r}
-bechdel90_13 <- bechdel %>% 
+bechdel90_13 <- bechdel %>%  
   filter(between(year, 1990, 2013))
 ```
 
-> What is the `%>%` inside the code? What does it do? How did you determine your answer?   
-
-
-
-There are `___` such movies.
+> What is the `%>%` inside the code? What does it do? How did you determine your answer?  
+The `%>%` inside the code is a pipe operator. It feeds information to the next line. I determined my answer by noticing that the `filter` function requires us to include the data set but it is not included within the function so the `%>%` must be telling it to use the dataset we established in that previous line.  
+  
+  
+  
+There are `1615` such movies.
 
 The financial variables we'll focus on are the following:
 
@@ -54,17 +56,17 @@ Let's take a look at how median budget and gross vary by whether the movie passe
 ```{r message = FALSE}
 bechdel90_13 %>%
   group_by(binary) %>%
-  summarise(med_budget = median(budget_2031),
+  summarise(med_budget = median(budget_2013),
             med_domgross = median(domgross_2013, na.rm = TRUE),
             med_intgross = median(intgross_2013, na.rm = TRUE))
 ```
 
 > What does `summarise()` do? How did you look it up?  
+According to the description of `summarise()` which I looked up under Help, it "creates a new data frame" and has "one column for each grouping variable and one column for each of the summary statistics [...] specified." In other words, `summarise()` allows us to see a table that displays the summary statistics we input into the function.  
 
 
 
-
-Next, let's take a look at how median budget and gross vary by a more detailed indicator of the Bechdel test result.
+Next, let's take a look at how median budget and gross vary by a more detailed indicator of the Bechdel test result.  
 This information is stored in the `clean_test` variable, which takes on the following values:
 
 -   `ok` = passes test
@@ -75,7 +77,7 @@ This information is stored in the `clean_test` variable, which takes on the foll
 
 ```{r message = FALSE}
 bechdel90_13 %>%
-  group_by(___) %>%  #fill in the gap with the right variable
+  group_by(clean_test) %>%  #fill in the gap with the right variable
   summarise(med_budget = median(budget_2013),
             med_domgross = median(domgross_2013, na.rm = TRUE),
             med_intgross = median(intgross_2013, na.rm = TRUE))
@@ -94,11 +96,11 @@ Let's see which movies have the highest return on investment.
 ```{r}
 bechdel90_13 %>%
   arrange(desc(roi)) %>% 
-  select(title, roi, year
+  select(title, roi, year)
 ```
 
 > What does `select()` do? How did you look it up?  
-
+Using `select()` allows us to be able to chose what part of the data we want to show. For example, althought the `bechdel90_13` dataset has 16 different variables, the table above only shows th three we've selected. I found [this lesson](https://study.com/academy/lesson/select-function-in-r-programming.html) to help with my understanding of how the `select()` function works.  
 
 
 
@@ -107,14 +109,15 @@ Below is a visualization of the return on investment by test result, however it'
 
 ```{r warning = FALSE}
 ggplot(data = bechdel90_13, 
-       mapping = aes(x = clean_test, y = roi color = binary)) +
+       mapping = aes(x = clean_test, y = roi, color = binary)) +
   geom_boxplot() +
   labs(title = "Return on investment vs. Bechdel test result",
        x = "Detailed Bechdel result",
-       y = "___",
+       y = "Return on Investment",
        color = "Binary Bechdel result")
 ```
-
+  
+  
 What are those movies with *very* high returns on investment?
 
 ```{r}
@@ -122,22 +125,23 @@ bechdel90_13 %>%
   filter(roi > 400) %>%
   select(title, budget_2013, domgross_2013, year)
 ```
-
-Zooming in on the movies with `roi < ___` provides a better view of how the medians across the categories compare:
-
+  
+Zooming in on the movies with `roi < 15` provides a better view of how the medians across the categories compare:
+  
 ```{r warning = FALSE}
 ggplot(data = bechdel90_13, mapping = aes(x = clean_test, y = roi, color = binary)) +
   geom_boxplot() +
   labs(title = "Return on investment vs. Bechdel test result",
-       subtitle = "___", # Something about zooming in to a certain level
+       subtitle = "Return on Investement < 15", # Something about zooming in to a certain level
        x = "Detailed Bechdel result",
        y = "Return on investment",
        color = "Binary Bechdel result") +
   coord_cartesian(ylim = c(0, 15))
 ```
-
-
+  
+  
 > What did you learn from the data analysis included in the document?  
-
+From the table where we are able to see whether a movie passed or failed the bechdel test, I was able to notice that the movies that failed on average had higher budgets and higher domestic and international gross earnings than those movies that passed the bechdel test.
+However, I saw that whether a movie passes or fails the test doesn't seem to have much effect on the return on investments since the distribution of the ok is about the same as the others. The one difference is that ok seems to have a higher maximum when looking into `roi < 15`. That is what I was able to learn about the data analysis included in the document.
 
 
